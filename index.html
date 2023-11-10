@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>myMemoPad</title>
+  <script src="js/jquery-2.1.3.min.js"></script>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <h1>10年日記</h1>
+  <body>
+    <a href="#" onclick="showTime()">現在時刻を表示する</a>
+    <span id="text"></span>
+  
+    <script type="text/javascript">
+  
+    function showTime() {
+      var now = new Date();
+      var nowhour = now.getHours();
+      var nowminutes = now.getMinutes();
+      var nowseconds = now.getSeconds();
+  
+      var text = nowhour + "：" + nowminutes + "：" + nowseconds; 
+      document.getElementById("text").innerHTML = text;
+    }
+    </script>
+    </body>
+
+
+
+  <main>
+    <div class="input-area">
+      <input id="writeMemo" type="text" placeholder="日付を入力">
+      <body>
+        <form method="post">
+          <div>
+            <label for="timename">時刻入力欄</label>
+            <input type="time" name="timename" value="00:00">
+          </div>
+        </form>
+        </body>
+    
+      <textarea id="text" placeholder="日記本文を入力"></textarea>
+    </div>
+
+    <div class="button-area">
+      <button id="save">セーブ</button>
+      <button id="clear">全て削除</button>
+    </div>
+
+    <script>
+      // localStorage.setItem("memoCount", 0);
+      function saveMemo() {
+          let writeMemo = document.getElementById('writeMemo');
+          let memoCount = parseInt(localStorage.getItem("memoCount"), 10);
+  
+          let t = new Date();
+          let tt;
+  
+          let year = t.getFullYear();
+          let month = t.getMonth() + 1;
+          let day = t.getDate();
+          let hour = t.getHours();
+          let minute = t.getMinutes();
+          let second = t.getSeconds();
+          tt = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+  
+          let chunk = { memo: writeMemo.value, date: tt }
+          let chunkData = JSON.stringify(chunk);
+          if (!memoCount)
+              memoCount = 0;
+  
+          localStorage.setItem(`writeMemo${memoCount}`, chunkData);
+          console.log(localStorage);
+          localStorage.setItem("memoCount", memoCount + 1);
+          outputMemo.innerHTML += `<p>${writeMemo.value}</p>`;
+          outputMemo.innerHTML += `<p>${tt}</p>`;
+  
+      }
+      document.addEventListener('DOMContentLoaded', (event) => {
+          let outputMemo = document.getElementById('outputMemo');
+          let memoCount = parseInt(localStorage.getItem("memoCount"), 10);
+          let count = 0;
+          let chunk;
+          while (count < memoCount) {
+              let chunkData = localStorage.getItem(`writeMemo${count}`);
+              if (chunkData != null) {
+                  console.log(localStorage);
+                  chunk = JSON.parse(chunkData);
+                  outputMemo.innerHTML += `<p>${chunk.memo}</p>`;
+                  outputMemo.innerHTML += `<p>${chunk.date}</p>`;
+              }
+              count++;
+          }
+          console.log(memoCount);
+      });
+  </script>
+
+    
+  </main>
+
+
+
+
+  <ul id="list">
+    <!-- ここに追加データが挿入される -->
+  </ul>
+  <footer>
+    Gs
+  </footer>
+  <!-- 以下にjsを書いていきます -->
+  <script>
+
+    //1.Save クリックイベント
+    $("#save").on("click", function () { //$で、saveの場所を特定、onで監視する→クリックされたらfunctionでおまじない。
+      const key = $("#title").val();
+      const value = $("#text").val();
+
+      //ローカルストレージにセット（登録）する　左が鍵、右が中身
+      localStorage.setItem(key, value);
+
+
+      //埋め込み用のhtmlのタグと変数を紐づけるテクニック
+      //ES6で登場したテンプレートリテラルというテク
+      const html = `
+      <li>
+        <p>${key}</p>
+        <p>${value}</p>
+      <li>
+  `;
+
+      $("#list").append(html);
+      $("#text").val("");
+      $("#title").val("");
+    });
+
+
+    //2.clear クリックイベント
+    $("#clear").on("click", function () {
+      //保存されているローカルストレージを全削除する
+      localStorage.clear();
+      //画面に表示されている打ったやつを消す
+      $("#list").empty();
+
+
+      //この下消さない
+    });
+
+
+    //3.ページ読み込み：保存データ取得表示
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = localStorage.getItem(key);
+
+      //htmlのタグと変数の埋め込み
+      const html = `
+      <li>
+        <p>${key}</p>
+        <p>${value}</p>
+      <li>
+  `;
+
+      //画面に表示する　指定した要素の最後にテキスト文字やHTML要素を追加できるメソッド
+      $("#list").append(html);
+
+    }
+
+  </script>
+</body>
+
+</html>
